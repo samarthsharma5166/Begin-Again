@@ -1,0 +1,29 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# environment variables (never ship secrets)
+.env
+.env.*
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# git
+.git
+.gitignore
+
+# docker files
+Dockerfile
+docker-compose.yml
+
+# editor / OS junk
+.vscode
+.idea
+.DS_Store
+
+# tests & misc
+coverage
