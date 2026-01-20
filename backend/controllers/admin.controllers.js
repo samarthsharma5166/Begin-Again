@@ -147,58 +147,90 @@ const verifyOTP =  async (req, res) => {
 
 const getBookings = async (req, res) => {
     try {
-        if(req.user.role !== "ADMIN"){
-            return res.status(400).json({ error: "You Do not have permission" });
+        if (req.user.role !== "ADMIN") {
+            return res.status(403).json({ error: "You do not have permission" });
         }
+
         const bookings = await prisma.booking.findMany({
-            orderBy: { createdAt: "desc" }
-        })
-        res.json(bookings)
+            where: {
+                payment: {
+                    status: "SUCCESS" // Only include bookings with successful payment
+                }
+            },
+            orderBy: { createdAt: "desc" },
+            include: {
+                payment: true // Optional: include payment info if needed
+            }
+        });
+
+        res.json(bookings);
     } catch (err) {
-        res.status(500).json({ error: err.message })
+        res.status(500).json({ error: err.message });
     }
-}
+};
 
-const exportBookings =  async (req, res) => {
 
-    
-    const bookings = await prisma.booking.findMany({
-        orderBy: { createdAt: "desc" }
-    })
+const exportBookings = async (req, res) => {
+    try {
+        const bookings = await prisma.booking.findMany({
+            where: {
+                payment: {
+                    status: "SUCCESS"
+                }
+            },
+            orderBy: { createdAt: "desc" },
+            include: {
+                payment: true
+            }
+        });
 
-    const workbook = new ExcelJS.Workbook()
-    const sheet = workbook.addWorksheet("Registrations")
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet("Registrations");
 
-    sheet.columns = [
-        { header: "Name", key: "fullName", width: 25 },
-        { header: "Email", key: "email", width: 30 },
-        { header: "Phone", key: "phone", width: 15 },
-        { header: "Age", key: "age", width: 10 },
-        { header: "Gender", key: "gender", width: 15 },
-        { header: "Therapeutic Consent", key: "agreementTherapeutic", width: 20 },
-        { header: "Recording Consent", key: "agreementRecording", width: 20 },
-        { header: "Registered At", key: "createdAt", width: 25 }
-    ]
+        sheet.columns = [
+            { header: "Name", key: "fullName", width: 25 },
+            { header: "Email", key: "email", width: 30 },
+            { header: "Phone", key: "phone", width: 15 },
+            { header: "Age", key: "age", width: 10 },
+            { header: "Gender", key: "gender", width: 15 },
+            { header: "Therapeutic Consent", key: "agreementTherapeutic", width: 20 },
+            { header: "Recording Consent", key: "agreementRecording", width: 20 },
+            { header: "Payment Method", key: "paymentMethod", width: 15 },
+            { header: "Transaction ID", key: "txnId", width: 25 },
+            { header: "Registered At", key: "createdAt", width: 25 }
+        ];
 
-    bookings.forEach(b => {
-        sheet.addRow({
-            ...b,
-            createdAt: new Date(b.createdAt).toLocaleString()
-        })
-    })
+        bookings.forEach(b => {
+            sheet.addRow({
+                fullName: b.fullName,
+                email: b.email,
+                phone: b.phone,
+                age: b.age,
+                gender: b.gender,
+                agreementTherapeutic: b.agreementTherapeutic ? "Yes" : "No",
+                agreementRecording: b.agreementRecording ? "Yes" : "No",
+                paymentMethod: b.payment?.method || "-",
+                txnId: b.payment?.txnId || "-",
+                createdAt: new Date(b.createdAt).toLocaleString()
+            });
+        });
 
-    res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
-    res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=event-registrations.xlsx"
-    )
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=event-registrations.xlsx"
+        );
 
-    await workbook.xlsx.write(res)
-    res.end()
-}
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
 
 const logout = (req, res) => {
     res.cookie("token", null, {
