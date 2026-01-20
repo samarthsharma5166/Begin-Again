@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
-const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) => {
+export const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) => {
     const Wrapper = (props: P) => {
         const router = useRouter()
         const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -26,4 +26,4 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
     return Wrapper
 }
 
-export default withAuth
+

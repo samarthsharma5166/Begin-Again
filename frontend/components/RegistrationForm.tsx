@@ -323,7 +323,7 @@ export const RegistrationForm = () => {
                                 <Mail className="w-5 h-5 text-emerald-600" /> Contact Info
                             </h3>
                             <div className="grid md:grid-cols-2 gap-6">
-                                <InputField
+                                {/* <InputField
                                     label="Email Address"
                                     icon={Mail}
                                     type="email"
@@ -338,6 +338,35 @@ export const RegistrationForm = () => {
                                     placeholder="+91 98765 43210"
                                     error={errors.phone}
                                     {...register("phone", { required: true })}
+                                /> */}
+
+                                <InputField
+                                    label="Email Address"
+                                    icon={Mail}
+                                    type="email"
+                                    placeholder="aditi@example.com"
+                                    error={errors.email && "Enter a valid email"}
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            message: "Invalid email format"
+                                        }
+                                    })}
+                                />
+                                <InputField
+                                    label="Phone (WhatsApp)"
+                                    icon={Calendar}
+                                    type="tel"
+                                    placeholder="+91 98765 43210"
+                                    error={errors.phone && "Enter a valid phone number"}
+                                    {...register("phone", {
+                                        required: "Phone is required",
+                                        pattern: {
+                                            value: /^[6-9]\d{9}$/,
+                                            message: "Invalid Indian phone number"
+                                        }
+                                    })}
                                 />
                             </div>
                         </div>

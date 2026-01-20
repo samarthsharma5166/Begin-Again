@@ -26,6 +26,36 @@ const addAdmin = async (req, res) => {
     }
 }
 
+ const verifyToken = async (req, res) => {
+    try {
+        // Get token from Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ error: "No token provided" });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Check if admin exists
+        const admin = await prisma.admin.findUnique({
+            where: { id: decoded.id },
+        });
+
+        if (!admin) {
+            return res.status(401).json({ error: "Admin not found" });
+        }
+
+        // Optionally, return some basic info
+        res.json({ success: true, admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role } });
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ error: "Invalid or expired token" });
+    }
+};
+
 const sendOTP =  async (req, res) => {
     const { email } = req.body;
     try {
@@ -109,7 +139,7 @@ const verifyOTP =  async (req, res) => {
             sameSite: 'strict'
         });
 
-        res.json({ success: true, message: "Logged in successfully" });
+        res.json({ success: true,token, message: "Logged in successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -190,5 +220,6 @@ module.exports = {
     verifyOTP,
     getBookings,
     exportBookings,
-    logout
+    logout,
+    verifyToken
 }

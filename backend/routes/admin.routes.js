@@ -1,5 +1,5 @@
 const express = require('express');
-const { addAdmin, sendOTP, verifyOTP, getBookings, exportBookings, logout } = require('../controllers/admin.controllers.js');
+const { addAdmin, sendOTP, verifyOTP, getBookings, exportBookings, logout, verifyToken } = require('../controllers/admin.controllers.js');
 const isAuth = require('../middleware/auth.js');
 const router = express.Router();
 
@@ -9,6 +9,7 @@ router.post("/login", sendOTP)
 
 router.post("/verify", verifyOTP);
 
+router.get("/verify-token",verifyToken);
 
 router.get("/bookings",isAuth ,getBookings)
 
