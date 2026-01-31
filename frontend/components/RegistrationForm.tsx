@@ -108,6 +108,27 @@ export const RegistrationForm = () => {
             formData.submit()
         }
     },[fromData])
+    useEffect(() => {
+        // If user comes back (inc. from bfcache) and we're in payment mode → go back to form
+        const handlePopState = () => {
+            if (step === 'payment') {
+                setStep('form');
+            }
+        };
+        
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted && step === 'payment') {
+                setStep('form');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        window.addEventListener('pageshow', handlePageShow);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            window.removeEventListener('pageshow', handlePageShow);
+        };
+    }, [step]);
     // console.log(url); 
     const onSubmit = async(data: FormData) => {
 
