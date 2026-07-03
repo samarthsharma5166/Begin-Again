@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use(
     cors({
-        origin: process.env.FRONTEND_URL || "http://localhost:3000",
+        origin: process.env.FRONTEND_URL || "http://localhost:8080",
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     })

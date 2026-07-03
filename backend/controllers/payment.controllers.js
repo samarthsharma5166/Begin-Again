@@ -65,8 +65,8 @@ const getPayment = async (req, res) => {
             firstname: fullName,
             email: email,
             phone: phone,
-            surl: `${process.env.FRONTEND_URL || "http://localhost:3000"}/payment/${txn_id}`,
-            furl: `${process.env.FRONTEND_URL || "http://localhost:3000"}/payment/${txn_id}`,
+            surl: `${process.env.FRONTEND_URL || "http://localhost:8080"}/payment/${txn_id}`,
+            furl: `${process.env.FRONTEND_URL || "http://localhost:8080"}/payment/${txn_id}`,
             hash
         })
         res.send(data)
